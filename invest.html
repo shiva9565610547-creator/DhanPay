@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swap Pay - Investment Station</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background-color: #0b111e;
+            color: #ffffff;
+            padding: 15px 15px 100px 15px; /* Bottom padding for menu */
+        }
+
+        /* Top Wallet Balance Display Header Added */
+        .wallet-header {
+            background: linear-gradient(135deg, #0f172a 0%, #17253f 100%);
+            border: 1px solid #1e293b;
+            padding: 15px 20px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .wallet-info span {
+            color: #8fa0bc;
+            font-size: 12px;
+            display: block;
+        }
+        .wallet-info h2 {
+            font-size: 22px;
+            color: #00ffcc;
+            margin-top: 2px;
+        }
+
+        /* Top Features Banner */
+        .invest-banner {
+            background: linear-gradient(135deg, #1e1b4b 0%, #311042 100%);
+            border: 1px solid #2e1065;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+        .invest-banner h2 {
+            font-size: 20px;
+            color: #00ffcc;
+            margin-bottom: 5px;
+        }
+        .invest-banner p {
+            font-size: 12px;
+            color: #cbd5e1;
+        }
+
+        /* Section Headings */
+        .section-title {
+            font-size: 16px;
+            color: #00ffcc;
+            margin: 20px 0 12px 0;
+            font-weight: 600;
+            border-left: 4px solid #00ffcc;
+            padding-left: 8px;
+        }
+
+        /* Swappay Row-wise VIP Plans */
+        .plan-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .vip-row-card {
+            background: #141d30;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #1e293b;
+            padding-bottom: 8px;
+        }
+        .card-top h4 {
+            font-size: 15px;
+            color: #ffffff;
+            font-weight: 600;
+        }
+        .badge-hot {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .card-middle {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            text-align: center;
+            background: #0f172a;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .data-box text {
+            display: block;
+            font-size: 11px;
+            color: #8fa0bc;
+            margin-bottom: 3px;
+        }
+        .data-box num {
+            font-size: 14px;
+            font-weight: bold;
+            color: #ffffff;
+        }
+        .data-box .green-text {
+            color: #00ffcc;
+        }
+        .invest-action-btn {
+            width: 100%;
+            background: linear-gradient(90deg, #00ffcc, #00b3ff);
+            color: #0b111e;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 12px rgba(0, 255, 204, 0.15);
+            transition: transform 0.1s ease;
+        }
+        .invest-action-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* ------------------ PREMIUM APP POPUP MODAL STYLES ------------------ */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            padding: 20px;
+        }
+        .modal-card {
+            background-color: #171d2b;
+            border-radius: 16px;
+            padding: 24px;
+            width: 100%;
+            max-width: 320px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.08);
+            animation: modalPopupEffect 0.25s ease-out;
+        }
+        @keyframes modalPopupEffect {
+            0% { transform: scale(0.85); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .modal-icon-display {
+            font-size: 40px;
+            margin-bottom: 12px;
+        }
+        .modal-title-display {
+            font-size: 19px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #ffffff;
+        }
+        .modal-desc-display {
+            color: #8fa0b5;
+            font-size: 14px;
+            line-height: 1.4;
+            margin-bottom: 20px;
+        }
+        .modal-action-btn {
+            width: 100%;
+            padding: 12px;
+            font-size: 15px;
+            font-weight: bold;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-theme-success { background-color: #00e6a4; color: #000000; }
+        .btn-theme-error { background-color: #ff4d4d; color: #ffffff; }
+        .btn-theme-warning { background-color: #ffaa00; color: #000000; }
+
+        /* FIXED BOTTOM NAVIGATION BAR */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            background-color: #111827;
+            border-top: 2px solid #1e293b;
+            display: flex;
+            justify-content: space-around;
+            padding: 14px 0;
+            z-index: 9999;
+        }
+        .nav-item {
+            background: none;
+            border: none;
+            color: #8fa0bc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            width: 20%;
+            font-size: 12px;
+            text-decoration: none;
+        }
+        .nav-item.active {
+            color: #00ffcc;
+            font-weight: bold;
+        }
+        .nav-icon {
+            font-size: 20px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Current Running Wallet Assets Layout Banner -->
+    <div class="wallet-header">
+        <div class="wallet-info">
+            <span>Available Balance (उपलब्ध बैलेंस)</span>
+            <h2 id="top-wallet-display-id">₹1000.00</h2>
+        </div>
+    </div>
+
+    <!-- Investment Page Banner -->
+    <div class="invest-banner">
+        <h2>🔥 High-Yield Wealth Area</h2>
+        <p>अपने निवेश पर रोज़ाना फिक्स्ड RETURN और बड़ा कमीशन पाएं।</p>
+    </div>
+
+    <!-- VIP Products Header -->
+    <h3 class="section-title">All Investment Products</h3>
+
+    <div class="plan-container">
+        
+        <!-- PLAN 1 -->
+        <div class="vip-row-card">
+            <div class="card-top">
+                <h4>VIP Plan - 01</h4>
+                <span class="badge-hot">9%+25</span>
+            </div>
+            <div class="card-middle">
+                <div class="data-box">
+                    <text>Investment</text>
+                    <num class="green-text">₹400.00</num>
+                </div>
+                <div class="data-box">
+                    <text>Profit</text>
+                    <num>₹36+25.00</num>
+                </div>
+                <div class="data-box">
+                    <text>Total</text>
+                    <num>₹461</num>
+                </div>
+            </div>
+            <button class="invest-action-btn" onclick="processPlanExecution('VIP Plan - 01', 400, '36+25.00', 461)">Invest Now</button>
+        </div>
+
+        <!-- PLAN 2 -->
+        <div class="vip-row-card">
+            <div class="card-top">
+                <h4>Swappay VIP Plan - 02</h4>
+                <span class="badge-hot">9%+50</span>
+            </div>
+            <div class="card-middle">
+                <div class="data-box">
+                    <text>Investment</text>
+                    <num class="green-text">₹800.00</num>
+                </div>
+                <div class="data-box">
+                    <text>Profit</text>
+                    <num>₹72+50.00</num>
+                </div>
+                <div class="data-box">
+                    <text>Total</text>
+                    <num>₹922</num>
+                </div>
+            </div>
+            <button class="invest-action-btn" onclick="processPlanExecution('Swappay VIP Plan - 02', 800, '72+50.00', 922)">Invest Now</button>
+        </div>
+
+        <!-- PLAN 3 -->
+        <div class="vip-row-card">
+            <div class="card-top">
+                <h4>VIP Plan - 03</h4>
+                <span class="badge-hot">9%+100</span>
+            </div>
+            <div class="card-middle">
+                <div class="data-box">
+                    <text>Investment</text>
+                    <num class="green-text">₹1,600.00</num>
+                </div>
+                <div class="data-box">
+                    <text>Profit</text>
+                    <num>₹144+100.00</num>
+                </div>
+                <div class="data-box">
+                    <text>Total</text>
+                    <num>₹1,844</num>
+                </div>
+            </div>
+            <button class="invest-action-btn" onclick="processPlanExecution('VIP Plan - 03', 1600, '144+100.00', 1844)">Invest Now</button>
+        </div>
+
+    </div>
+
+    <!-- ------------------ PREMIUM APP POPUP MODAL STYLES & MARKUP ------------------ -->
+    <div class="modal-overlay" id="custom-app-modal-id">
+        <div class="modal-card">
+            <div class="modal-icon-display" id="modal-icon-target">⚠️</div>
+            <div class="modal-title-display" id="modal-title-target">Notification</div>
+            <div class="modal-desc-display" id="modal-desc-target">Message body loaded.</div>
+            <button class="modal-action-btn" id="modal-btn-target" onclick="dismissCustomModalPopup()">OK</button>
+        </div>
+    </div>
+
+    <!-- FIXED BOTTOM NAVIGATION BAR -->
+    <div class="bottom-nav">
+        <a href="dashboard.html" class="nav-item">
+            <span class="nav-icon">🏠</span>
+            <span>Home</span>
+        </a>
+        <a href="invest.html" class="nav-item active">
+            <span class="nav-icon">📊</span>
+            <span>Invest</span>
+        </a>
+        <a href="orders.html" class="nav-item">
+            <span class="nav-icon">🛍️</span>
+            <span>Orders</span>
+        </a>
+        <a href="withdraw.html" class="nav-item">
+            <span class="nav-icon">💲</span>
+            <span>Withdraw</span>
+        </a>
+        <a href="mine.html" class="nav-item">
+            <span class="nav-icon">👤</span>
+            <span>Mine</span>
+        </a>
+    </div>
+
+    <!-- Investment Core Engine Logic Script Routine -->
+    <script>
+    let isRedirectPendingOnClose = false;
+
+    document.addEventListener("DOMContentLoaded", function() {
+        // Dashboard se set kiya hua balance load karega
+        // Agar pehle se kuch nahi mila tabhi 1000 asign karega
+        if (!localStorage.getItem('wallet_balance')) {
+            localStorage.setItem('wallet_balance', '1000'); 
+        }
+        syncHeaderBalanceView();
+    });
+
+    function syncHeaderBalanceView() {
+        let activeWalletBalance = parseFloat(localStorage.getItem('wallet_balance') || '0');
+        
+        // Aapke top design box mein jahan balance show ho raha hai 
+        // us element ki id 'top-wallet-display-id' ya 'live-wallet-balance' rakhein
+        let topDisplay1 = document.getElementById('top-wallet-display-id');
+        let topDisplay2 = document.getElementById('live-wallet-balance');
+        
+        if(topDisplay1) topDisplay1.innerText = "₹" + activeWalletBalance.toFixed(2);
+        if(topDisplay2) topDisplay2.innerText = "₹" + activeWalletBalance.toFixed(2);
+    }
+
+    function triggerAppModalPopup(styleType, headingText, descriptionText, routeState) {
+        let iconElement = document.getElementById('modal-icon-target');
+        let titleElement = document.getElementById('modal-title-target');
+        let descriptionElement = document.getElementById('modal-desc-target');
+        let buttonElement = document.getElementById('modal-btn-target');
+        
+        isRedirectPendingOnClose = routeState;
+
+        if (styleType === 'success') {
+            iconElement.innerHTML = '🎉';
+            titleElement.style.color = '#00e6a4';
+            buttonElement.className = 'modal-action-btn btn-theme-success';
+        } else if (styleType === 'insufficient') {
+            iconElement.innerHTML = '❌';
+            titleElement.style.color = '#ff4d4d';
+            buttonElement.className = 'modal-action-btn btn-theme-error';
+        }
+
+        titleElement.innerText = headingText;
+        descriptionElement.innerText = descriptionText;
+        document.getElementById('custom-app-modal-id').style.display = 'flex';
+    }
+
+    function dismissCustomModalPopup() {
+        document.getElementById('custom-app-modal-id').style.display = 'none';
+        if (isRedirectPendingOnClose) {
+            window.location.href = 'orders.html';
+        }
+    }
+
+    function processPlanExecution(planName, amount, profitString, totalReturnValue) {
+        let currentFunds = parseFloat(localStorage.getItem('wallet_balance') || '0');
+
+        if (currentFunds >= amount) {
+            let postDebitBalance = currentFunds - amount;
+            localStorage.setItem('wallet_balance', postDebitBalance.toString());
+            syncHeaderBalanceView();
+
+            let expiryTimestamp = Date.now() + (12 * 60 * 60 * 1000);
+
+            let orderStruct = {
+                plan: planName,
+                price: amount,
+                profitCalculation: profitString,
+                totalReturn: totalReturnValue,
+                expiry: expiryTimestamp,
+                status: 'active'
+            };
+
+            localStorage.setItem('active_order', JSON.stringify(orderStruct));
+            triggerAppModalPopup('success', 'Plan Activated!', planName + ' successfully activated! Check under Record Section.', true);
+        } else {
+            triggerAppModalPopup('insufficient', 'Low Balance!', 'Aapka wallet balance kam h (₹' + currentFunds.toFixed(2) + '). Is plan ko purchase karne ke liye kripya pehle recharge karein.', false);
+        }
+    }
+</script>
+</body>
+</html>

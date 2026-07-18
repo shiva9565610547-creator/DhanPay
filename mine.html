@@ -1,0 +1,196 @@
+<?php 
+include("config.php"); 
+?>
+
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dhan Pay - Mine Profile</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        body { background-color: #0b111e; color: #ffffff; padding: 15px 15px 100px 15px; }
+        
+        /* यूजर प्रोफाइल कार्ड */
+        .profile-card { background: linear-gradient(135deg, #16223f 0%, #0f172a 100%); border: 1px solid #1e293b; border-radius: 15px; padding: 20px; text-align: center; margin-bottom: 15px; position: relative; }
+        .avatar { font-size: 50px; margin-bottom: 10px; display: block; }
+        .profile-card h3 { font-size: 18px; color: #00ffcc; margin-bottom: 5px; }
+        .profile-card p { font-size: 12px; color: #8fa0bc; }
+
+        /* टोटल डिपॉजिट और विड्रॉ सेक्शन */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+        .stats-box { background: #141d30; border: 1px solid #1e293b; border-radius: 12px; padding: 15px 10px; text-align: center; }
+        .stats-box span { font-size: 11px; color: #8fa0bc; display: block; margin-bottom: 5px; }
+        .stats-box h2 { font-size: 18px; font-weight: bold; }
+        .deposit-amount { color: #00ffcc; } 
+        .withdraw-amount { color: #ff4d4d; } 
+
+        /* सेटिंग्स/मेन्यू लिस्ट */
+        .menu-list { background: #141d30; border-radius: 12px; border: 1px solid #1e293b; overflow: hidden; margin-bottom: 20px; }
+        .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #1e293b; cursor: pointer; text-decoration: none; color: #ffffff; }
+        .menu-item:last-child { border-bottom: none; }
+        .menu-left { display: flex; align-items: center; gap: 12px; }
+        .menu-icon { font-size: 18px; }
+        .menu-title { font-size: 14px; color: #cbd5e1; }
+        .arrow-right { color: #8fa0bc; font-size: 14px; }
+
+        /* FIXED BOTTOM NAV */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; width: 100%; background-color: #111827; border-top: 2px solid #1e293b; display: flex; justify-content: space-around; padding: 14px 0; z-index: 9999; }
+        .nav-item { background: none; border: none; color: #8fa0bc; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; width: 20%; font-size: 12px; text-decoration: none; }
+        .nav-item.active { color: #00ffcc; font-weight: bold; }
+        .nav-icon { font-size: 20px; display: block; }
+
+        /* CUSTOM POP-UP STYLE */
+        .popup-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); justify-content: center; align-items: center; z-index: 10000; }
+        .popup-box { background: #111a2e; border: 1px solid #1e293b; padding: 25px; border-radius: 15px; width: 85%; max-width: 320px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .popup-icon { font-size: 45px; margin-bottom: 10px; display: block; }
+        .popup-title { font-size: 20px; font-weight: bold; color: #fff; margin-bottom: 8px; }
+        .popup-text { font-size: 14px; color: #8a99a8; margin-bottom: 20px; }
+        .popup-btn { background: #00ffcc; color: #0b111e; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; }
+
+        /* टेलीग्राम बटन का स्पेशल लिंक स्टाइल */
+        .telegram-direct-btn { display: inline-block; background: #0088cc; color: #fff !important; text-decoration: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; margin-top: 10px; width: 100%; font-size: 15px; }
+    </style>
+</head>
+<body>
+
+    <!-- प्रोफाइल कार्ड सेक्शन -->
+    <div class="profile-card">
+        <span class="avatar">👤</span>
+        <h3 id="display-id">ID: Dhan_user786</h3>
+        <p id="display-invite">Invite Code: 559120</p>
+    </div>
+
+    <!-- टोटल डिपॉजिट और विड्रॉ सेक्शन -->
+    <div class="stats-grid">
+        <div class="stats-box">
+            <span>Total Deposit (कुल जमा)</span>
+            <h2 class="deposit-amount">₹0.00</h2>
+        </div>
+        <div class="stats-box">
+            <span>Total Withdraw (कुल निकासी)</span>
+            <h2 class="withdraw-amount">₹0.00</h2>
+        </div>
+    </div>
+
+    <!-- मेन्यू ऑप्शंस की लिस्ट -->
+    <div class="menu-list">
+        <div class="menu-item" onclick="changePassword()">
+            <div class="menu-left">
+                <span class="menu-icon">🔒</span>
+                <span class="menu-title">Change Password</span>
+            </div>
+            <span class="arrow-right">➔</span>
+        </div>
+
+        <!-- यहाँ हमने HTML लिंक का उपयोग किया है जो ऐप ओपन करने के लिए सबसे बेस्ट है -->
+        <a href="tg://resolve?domain=ankushhhzhsys" class="menu-item">
+            <div class="menu-left">
+                <span class="menu-icon">🛠️</span>
+                <span class="menu-title">Customer Support</span>
+            </div>
+            <span class="arrow-right">➔</span>
+        </a>
+
+        <div class="menu-item" onclick="handleLogout()" style="border-bottom: none;">
+            <div class="menu-left">
+                <span class="menu-icon" style="color: #ff4d4d;">🚪</span>
+                <span class="menu-title" style="color: #ff4d4d; font-weight: bold;">Logout Account</span>
+            </div>
+            <span class="arrow-right" style="color: #ff4d4d;">➔</span>
+        </div>
+    </div>
+
+    <!-- FIXED BOTTOM NAV -->
+    <div class="bottom-nav">
+        <a href="dashboard.html" class="nav-item">
+            <span class="nav-icon">🏠</span>
+            <span>Home</span>
+        </a>
+        <a href="invest.html" class="nav-item">
+            <span class="nav-icon">📊</span>
+            <span>Invest</span>
+        </a>
+        <a href="orders.html" class="nav-item">
+            <span class="nav-icon">🛍️</span>
+            <span>Orders</span>
+        </a>
+        <a href="withdraw.html" class="nav-item">
+            <span class="nav-icon">💲</span>
+            <span>Withdraw</span>
+        </a>
+        <a href="mine.html" class="nav-item active">
+            <span class="nav-icon">👤</span>
+            <span>Mine</span>
+        </a>
+    </div>
+
+    <!-- इन-बिल्ट कस्टम पॉप-अप HTML -->
+    <div id="custom-popup" class="popup-overlay">
+        <div class="popup-box">
+            <span id="p-icon" class="popup-icon">✔️</span>
+            <div id="p-title" class="popup-title">Success!</div>
+            <div id="p-text" class="popup-text">Task completed.</div>
+            <div id="popup-dynamic-content"></div>
+            <button class="popup-btn" style="margin-top: 10px;" onclick="closePopup()">Cancel / OK</button>
+        </div>
+    </div>
+
+    <script>
+        var nextStep = null;
+
+        window.onload = function() {
+            var savedPhone = localStorage.getItem("saved_phone");
+            if(savedPhone) {
+                document.getElementById("display-id").innerText = "Account: " + savedPhone;
+            }
+        };
+
+        function showPopup(title, text, icon, type, callback) {
+            document.getElementById('p-title').innerText = title;
+            document.getElementById('p-text').innerText = text;
+            document.getElementById('p-icon').innerText = icon;
+            document.getElementById('popup-dynamic-content').innerHTML = ''; // क्लियर करें
+            
+            var btn = document.querySelector('.popup-btn');
+            if(type === 'error') {
+                btn.style.background = '#ff4d4d';
+                btn.style.color = '#fff';
+            } else {
+                btn.style.background = '#00ffcc';
+                btn.style.color = '#0b111e';
+            }
+            
+            document.getElementById('custom-popup').style.display = 'flex';
+            nextStep = callback;
+        }
+
+        // टेलीग्राम के लिए एक स्पेशल पॉपअप जो कभी फेल नहीं होगा
+        function openSupport() {
+            window.open("https://t.me", "_blank");
+        }
+
+
+        function closePopup() {
+            document.getElementById('custom-popup').style.display = 'none';
+            if(nextStep) {
+                nextStep();
+                nextStep = null;
+            }
+        }
+
+        function changePassword() {
+            showPopup('Security', 'पासवर्ड बदलने का फ़ीचर अभी मेंटेनेंस में है।', '🔒', 'info', null);
+        }
+
+        function handleLogout() {
+            localStorage.removeItem("user_logged");
+            showPopup('Logged Out', 'Logout Success', '🚪', 'success', function() {
+                window.location.href = "index.html";
+            });
+        }
+        
+    </script>
+</body>
+</html>

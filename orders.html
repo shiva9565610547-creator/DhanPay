@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swap Pay - My Orders</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background-color: #0b111e;
+            color: #ffffff;
+            padding: 15px 15px 100px 15px;
+        }
+
+        /* Top Summary Area */
+        .summary-card {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border: 1px solid #1e293b;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .summary-card span {
+            color: #8fa0bc;
+            font-size: 12px;
+        }
+        .summary-card h2 {
+            font-size: 26px;
+            color: #00ffcc;
+            margin-top: 5px;
+        }
+
+        /* Section Title */
+        .section-title {
+            font-size: 16px;
+            color: #00ffcc;
+            margin: 20px 0 12px 0;
+            font-weight: 600;
+            border-left: 4px solid #00ffcc;
+            padding-left: 8px;
+        }
+
+        /* Active Order Cards */
+        .order-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .order-row-card {
+            background: #141d30;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            border-left: 4px solid #00ffcc;
+        }
+        .order-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #1e293b;
+            padding-bottom: 8px;
+        }
+        .order-top h4 {
+            font-size: 14px;
+            color: #ffffff;
+        }
+        .status-running {
+            background: rgba(0, 255, 204, 0.1);
+            color: #00ffcc;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .order-middle {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            text-align: center;
+            background: #0f172a;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .data-box text {
+            display: block;
+            font-size: 11px;
+            color: #8fa0bc;
+            margin-bottom: 3px;
+        }
+        .data-box num {
+            font-size: 13px;
+            font-weight: bold;
+            color: #ffffff;
+        }
+        .data-box .green-text {
+            color: #00ffcc;
+        }
+
+        /* Live Timer Style */
+        .timer-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #0f172a;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+        .timer-label {
+            color: #8fa0bc;
+        }
+        .timer-countdown {
+            color: #ff9900;
+            font-weight: bold;
+        }
+
+        /* Modern Cashout Button Style */
+        .cashout-btn {
+            background-color: #1f293d;
+            color: #64748b;
+            border: none;
+            width: 100%;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: not-allowed;
+            transition: all 0.3s ease;
+        }
+        .cashout-btn.active {
+            background-color: #00ffcc;
+            color: #0b111e;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 255, 204, 0.2);
+        }
+
+        /* No Order Message */
+        .no-order {
+            text-align: center;
+            color: #8fa0bc;
+            font-size: 14px;
+            padding: 4px 0;
+        }
+
+        /* FIXED BOTTOM NAVIGATION BAR */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            background-color: #111827;
+            border-top: 2px solid #1e293b;
+            display: flex;
+            justify-content: space-around;
+            padding: 14px 0;
+            z-index: 9999;
+        }
+        .nav-item {
+            background: none;
+            border: none;
+            color: #8fa0bc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            width: 20%;
+            font-size: 12px;
+            text-decoration: none;
+        }
+        .nav-item.active {
+            color: #00ffcc;
+            font-weight: bold;
+        }
+        .nav-icon {
+            font-size: 20px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Orders Page Summary -->
+    <div class="summary-card">
+        <span>Total Investment Assets (कुल निवेश)</span>
+        <h2 id="total-assets">₹0.00</h2>
+    </div>
+
+    <!-- Active Orders Section -->
+    <h3 class="section-title">My Running Income Records</h3>
+
+    <div class="order-container" id="order-list-container">
+        <!-- Agar koi plan nahi khareeda hoga to ye dikhega -->
+        <div class="no-order" id="empty-message">No Active Plan</div>
+        
+        <!-- RUNNING PLAN 1 RECORD (JavaScript se control hoga) -->
+        <div class="order-row-card" id="plan-card" style="display: none;">
+            <div class="order-top">
+                <h4 id="plan-title">Swappay VIP Plan - 01</h4>
+                <span class="status-running" id="plan-status">Running ⚡</span>
+            </div>
+            <div class="order-middle">
+                <div class="data-box">
+                    <text>Amount</text>
+                    <num class="green-text" id="plan-amount">₹400.00</num>
+                </div>
+                <div class="data-box">
+                    <text>Profit</text>
+                    <num id="plan-profit">₹36+25.00</num>
+                </div>
+                <div class="data-box">
+                    <text>Total Return</text>
+                    <num id="plan-total" style="color: #00ffcc;">₹461.00</num>
+                </div>
+            </div>
+            
+            <!-- Live Time Counter Block -->
+            <div class="timer-box">
+                <span class="timer-label">Remaining Time:</span>
+                <span class="timer-countdown" id="live-timer">12:00:00</span>
+            </div>
+
+            <!-- Smart Cashout Button -->
+            <button class="cashout-btn" id="cashout-action-btn" onclick="processCashout()" disabled>
+                Lock Earnings (12 Hours)
+            </button>
+        </div>
+
+    </div>
+
+    <!-- NAVIGATION MENU -->
+    <div class="bottom-nav">
+        <a href="dashboard.html" class="nav-item">
+            <span class="nav-icon">🏠</span>
+            <span>Home</span>
+        </a>
+        <a href="invest.html" class="nav-item">
+            <span class="nav-icon">📊</span>
+            <span>Invest</span>
+        </a>
+        <a href="orders.html" class="nav-item active">
+            <span class="nav-icon">🛍️</span>
+            <span>Orders</span>
+        </a>
+        <a href="withdraw.html" class="nav-item">
+            <span class="nav-icon">💲</span>
+            <span>Withdraw</span>
+        </a>
+        <a href="mine.html" class="nav-item">
+            <span class="nav-icon">👤</span>
+            <span>Mine</span>
+        </a>
+    </div>
+
+    <!-- Live System JavaScript Core -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Check karein ki user ne invest.html se koi plan buy kiya h ya nahi
+            let activeOrder = JSON.parse(localStorage.getItem('active_order'));
+
+            if (activeOrder && activeOrder.status === 'active') {
+                // UI Elements ko show karein
+                document.getElementById('empty-message').style.display = 'none';
+                document.getElementById('plan-card').style.display = 'flex';
+                
+                // Data load karein
+                document.getElementById('total-assets').innerText = "₹" + parseFloat(activeOrder.price).toFixed(2);
+                document.getElementById('plan-title').innerText = activeOrder.plan;
+                document.getElementById('plan-amount').innerText = "₹" + parseFloat(activeOrder.price).toFixed(2);
+                document.getElementById('plan-profit').innerText = "₹" + activeOrder.profitCalculation;
+                document.getElementById('plan-total').innerText = "₹" + parseFloat(activeOrder.totalReturn).toFixed(2);
+
+                // 12 Hours Live Timer Execution
+                let timerInterval = setInterval(function() {
+                    let now = Date.now();
+                    let distance = activeOrder.expiry - now;
+
+                    // Time logic hours, minutes, seconds me convert karne ke liye
+                    let hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    let seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                    // Zero padding logic (e.g. 05:09:02)
+                    hours = hours < 10 ? "0" + hours : hours;
+                    minutes = minutes < 10 ? "0" + minutes : minutes;
+                    seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                    document.getElementById("live-timer").innerHTML = hours + ":" + minutes + ":" + seconds;
+
+                    // Jab 12 ghante poore ho jayenge
+                    if (distance < 0) {

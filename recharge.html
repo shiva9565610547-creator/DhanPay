@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swap Pay - Recharge</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        body { background: #0b151e; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .recharge-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; padding: 25px; width: 100%; max-width: 400px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); text-align: center; }
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px; }
+        .back-btn { color: #8a99a8; text-decoration: none; font-size: 14px; cursor: pointer; }
+        .title { color: #00e5ff; font-size: 20px; font-weight: bold; }
+        .balance-box { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 12px; margin-bottom: 20px; }
+        .balance-label { color: #8a99a8; font-size: 13px; margin-bottom: 5px; }
+        .balance-amount { font-size: 24px; font-weight: bold; color: #fff; }
+        .form-group { margin-bottom: 20px; text-align: left; }
+        label { color: #00e5ff; font-size: 13px; display: block; margin-bottom: 8px; font-weight: 500; }
+        .amount-input-box { position: relative; }
+        .currency-symbol { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #fff; font-size: 18px; font-weight: bold; }
+        input { width: 100%; padding: 14px 14px 14px 35px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; color: #fff; font-size: 16px; outline: none; font-weight: bold; }
+        input:focus { border-color: #00e5ff; }
+        .quick-amounts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 25px; }
+        .amount-chip { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 10px; border-radius: 8px; text-align: center; font-size: 14px; cursor: pointer; font-weight: 500; }
+        .amount-chip:hover { border-color: #00e5ff; color: #00e5ff; }
+        .btn-pay { width: 100%; padding: 14px; background: linear-gradient(90deg, #00d2ff 0%, #0072ff 100%); border: none; border-radius: 10px; color: white; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0, 114, 255, 0.4); }
+        
+        /* QR CONTANIER STYLING */
+        .qr-section { background: #12212f; border: 1px solid #00e5ff; border-radius: 15px; padding: 20px; margin-top: 20px; text-align: center; display: none; }
+        .pay-amount-text { font-size: 22px; color: #00e5ff; font-weight: bold; margin-bottom: 15px; }
+        .utr-input { padding: 14px; margin: 10px 0; background: rgba(255, 255, 255, 0.05); text-align: center; padding-left: 14px !important; }
+        
+        .qr-img-frame { width: 180px; height: 180px; background: white; margin: 15px auto; padding: 10px; border-radius: 10px; display: flex; justify-content: center; align-items: center; }
+        .qr-img-frame img { width: 160px; height: 160px; display: block; object-fit: contain; }
+    </style>
+</head>
+<body>
+
+    <div class="recharge-card">
+        <div class="header">
+            <a href="dashboard.html" class="back-btn">✕ Back</a>
+            <div class="title">Recharge</div>
+            <div style="width: 40px;"></div>
+        </div>
+
+        <div class="balance-box">
+            <div class="balance-label">Current Balance (वर्तमान राशि)</div>
+            <div class="balance-amount">₹0.00</div>
+        </div>
+
+        <div class="form-group">
+            <label>Enter Amount (राशि दर्ज करें)</label>
+            <div class="amount-input-box">
+                <span class="currency-symbol">₹</span>
+                <input type="number" id="recharge-amount" placeholder="Minimum 500">
+            </div>
+        </div>
+
+        <div class="quick-amounts">
+            <div class="amount-chip" onclick="setAmount(500)">₹500</div>
+            <div class="amount-chip" onclick="setAmount(1000)">₹1000</div>
+            <div class="amount-chip" onclick="setAmount(2000)">₹2000</div>
+            <div class="amount-chip" onclick="setAmount(5000)">₹5000</div>
+            <div class="amount-chip" onclick="setAmount(10000)">₹10000</div>
+            <div class="amount-chip" onclick="setAmount(20000)">₹20000</div>
+        </div>
+
+        <button class="btn-pay" id="main-pay-btn" onclick="showQrCodeNow()">Recharge Now</button>
+
+        <!-- QR Display Segment -->
+        <div class="qr-section" id="qrContainer">
+            <h4 style="margin-bottom: 5px;">Scan QR & Pay</h4>
+            <div class="pay-amount-text" id="pop-amount">₹500</div>
+
+            <!-- 🔴 DIRECT LOCAL IMAGE LINK -->
+            <div class="qr-img-frame">
+                <img src="myqr.png" alt="QR Code">
+            </div>
+
+            <div class="form-group" style="margin-top: 20px;">
+                <label style="text-align: center;">Enter 12-Digit UTR / Ref No.</label>
+                <input type="number" class="utr-input" id="utr-number" placeholder="Enter Transaction UTR">
+            </div>
+
+            <button class="btn-pay" onclick="submitUtrData()">Submit Reference No</button>
+        </div>
+    </div>
+
+    <script>
+        function setAmount(val) {
+            document.getElementById("recharge-amount").value = val;
+        }
+
+        function showQrCodeNow() {
+            var amount = document.getElementById("recharge-amount").value;
+            
+            if(amount === "" || amount < 500) {
+                alert("Kripya kam se kam ₹500 ka amount daalein!");
+                return;
+            }
+
+            document.getElementById("pop-amount").innerText = "₹" + amount;
+
+            // QR section ko block karke display karwana
+            document.getElementById("qrContainer").style.display = "block";
+            document.getElementById("main-pay-btn").innerText = "QR Generated Below ↓";
+        }
+
+        function submitUtrData() {
+            var utrValue = document.getElementById("utr-number").value;
+
+            if(utrValue.length !== 12) {
+                alert("Galti: UTR Number poore 12-digit ka hona chahiye!");
+                return;
+            }
+
+            alert("Success! Payment under verification.");
+            window.location.href = "dashboard.html";
+        }
+    </script>
+
+</body>
+</html>

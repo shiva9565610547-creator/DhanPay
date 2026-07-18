@@ -1,0 +1,158 @@
+<?php 
+// Jab website live server par chalegi toh yeh database se balance uthayega
+include("config.php"); 
+$db_balance = isset($user['balance']) ? $user['balance'] : null;
+?>
+
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swap Pay - Withdraw Balance</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        body { background-color: #0b111e; color: #ffffff; padding: 15px 15px 100px 15px; }
+        
+        .section-title { font-size: 16px; color: #00ffcc; margin: 15px 0 12px 0; font-weight: 600; border-left: 4px solid #00ffcc; padding-left: 8px; }
+        
+        /* Balance Display Card */
+        .balance-box {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .balance-box span { color: #8fa0bc; font-size: 12px; }
+        .balance-box h2 { color: #00ffcc; font-size: 26px; margin-top: 5px; }
+
+        /* Form Card */
+        .withdraw-card {
+            background: #141d30;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 12px; color: #8fa0bc; margin-bottom: 6px; }
+        .form-group input { width: 100%; padding: 12px; background: #0b111e; border: 1px solid #1e293b; border-radius: 8px; color: #ffffff; font-size: 14px; outline: none; }
+        .form-group input:focus { border-color: #00ffcc; }
+        .info-text { font-size: 11px; color: #ff4d4d; margin-top: 5px; line-height: 1.4; }
+
+        .submit-btn {
+            width: 100%;
+            background: linear-gradient(90deg, #00ffcc, #00b3ff);
+            color: #0b111e;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 10px;
+            text-transform: uppercase;
+        }
+
+        /* FIXED BOTTOM NAV */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; width: 100%; background-color: #111827; border-top: 2px solid #1e293b; display: flex; justify-content: space-around; padding: 14px 0; z-index: 9999; }
+        .nav-item { background: none; border: none; color: #8fa0bc; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; width: 20%; font-size: 12px; text-decoration: none; }
+        .nav-item.active { color: #00ffcc; font-weight: bold; }
+        .nav-icon { font-size: 20px; display: block; }
+    </style>
+</head>
+<body>
+
+    <div class="balance-box">
+        <span>Withdrawable Balance (निकासी योग्य राशि)</span>
+        <h2 id="withdraw-balance">₹0.00</h2>
+    </div>
+
+    <h3 class="section-title">Withdrawal Request</h3>
+    <div class="withdraw-card">
+        <!-- Yahan humne function badal diya hai jo paisa minus karega -->
+        <form onsubmit="executeWithdraw(event)">
+            <div class="form-group">
+                <label>Enter Amount (न्यूनतम ₹300)</label>
+                <input type="number" id="withdraw-amount" placeholder="Enter amount to withdraw" min="300" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Bank Account Number / UPI ID</label>
+                <input type="text" placeholder="Enter Bank A/C or UPI ID" required>
+            </div>
+
+            <div class="form-group">
+                <label>IFSC Code (Only for Bank Account)</label>
+                <input type="text" placeholder="Enter IFSC Code (Optional)">
+            </div>
+
+            <p class="info-text">* नोट: विथड्रॉल टैक्स 10% काटा जाएगा। राशि आने में 1 से 24 घंटे का समय lag sakta hai.</p>
+
+            <button type="submit" class="submit-btn">Submit Withdraw</button>
+        </form>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <div class="bottom-nav">
+        <a href="dashboard.html" class="nav-item">
+            <span class="nav-icon">🏠</span><span>Home</span>
+        </a>
+        <a href="invest.html" class="nav-item">
+            <span class="nav-icon">📊</span><span>Invest</span>
+        </a>
+        <a href="orders.html" class="nav-item">
+            <span class="nav-icon">🛍️</span><span>Orders</span>
+        </a>
+        <a href="withdraw.html" class="nav-item active">
+            <span class="nav-icon">💲</span><span>Withdraw</span>
+        </a>
+        <a href="mine.html" class="nav-item">
+            <span class="nav-icon">👤</span><span>Mine</span>
+        </a>
+    </div>
+
+<script>
+    // Page load hone par balance dikhane ke liye
+    function updateDisplay() {
+        var phpBalance = "<?php echo $db_balance; ?>";
+        var balanceTag = document.getElementById("withdraw-balance");
+        
+        if (phpBalance && phpBalance !== "<?" + "php echo $db_balance; ?>") {
+            balanceTag.innerText = "₹" + parseFloat(phpBalance).toFixed(2);
+        } else {
+            var currentBalance = localStorage.getItem("user_balance") || "500.00";
+            balanceTag.innerText = "₹" + parseFloat(currentBalance).toFixed(2);
+        }
+    }
+
+    window.onload = updateDisplay;
+
+    // Withdraw submit karne par paisa minus karne ka function
+    function executeWithdraw(event) {
+        event.preventDefault();
+        
+        var amountInput = document.getElementById("withdraw-amount").value;
+        var amountToWithdraw = parseFloat(amountInput);
+        var currentBalance = parseFloat(localStorage.getItem("user_balance") || "500.00");
+
+        if (amountToWithdraw > currentBalance) {
+            alert("Error: Aapke paas itna balance nahi hai!");
+        } else {
+            // Balance minus kar rahe hain
+            var newBalance = currentBalance - amountToWithdraw;
+            localStorage.setItem("user_balance", newBalance.toFixed(2));
+            
+            // Screen par naya balance update kar rahe hain
+            updateDisplay();
+            
+            alert("Success: ₹" + amountToWithdraw + " ka withdrawal request lag gaya hai! Balance debit ho gaya.");
+            document.getElementById("withdraw-amount").value = ""; // Input box khali karne ke liye
+        }
+    }
+</script>
+
+</body>
+</html>

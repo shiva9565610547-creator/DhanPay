@@ -1,0 +1,137 @@
+<?php 
+include("config.php"); 
+?>
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dhan Pay - Dashboard</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        body { background-color: #0b111e; color: #ffffff; padding: 15px 15px 100px 15px; }
+        
+        .user-profile { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: #141d30; padding: 12px; border-radius: 10px; border: 1px solid #1e293b; }
+        .user-details h3 { font-size: 15px; color: #00ffcc; }
+        .user-details p { font-size: 11px; color: #8fa0bc; margin-top: 3px; }
+
+        .balance-card { background: linear-gradient(135deg, #16223f 0%, #0f172a 100%); border: 1px solid #1e293b; border-radius: 15px; padding: 20px; text-align: center; margin-bottom: 20px; }
+        .balance-card span { color: #8fa0bc; font-size: 12px; }
+        .balance-card h1 { font-size: 32px; color: #ffffff; margin: 8px 0 15px 0; }
+        .card-actions { display: flex; gap: 12px; }
+        .action-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; }
+        .btn-recharge { background: #00ffcc; color: #0b111e; }
+        .btn-withdraw { background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc; }
+
+        .quick-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 25px; }
+        .quick-item { background: #141d30; padding: 12px 5px; border-radius: 10px; text-align: center; cursor: pointer; border: 1px solid #1e293b; }
+        .quick-item .icon { font-size: 20px; margin-bottom: 5px; display: block; }
+        .quick-item p { font-size: 11px; color: #cbd5e1; }
+
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; width: 100%; background-color: #111827; border-top: 2px solid #1e293b; display: flex; justify-content: space-around; padding: 14px 0; z-index: 9999; }
+        .nav-item { background: none; border: none; color: #8fa0bc; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; width: 20%; font-size: 12px; text-decoration: none; }
+        .nav-item.active { color: #00ffcc; font-weight: bold; }
+        .nav-icon { font-size: 20px; display: block; }
+    </style>
+</head>
+<body>
+
+    <div class="user-profile">
+        <div class="user-details">
+            <h3 id="display-id">ID: Dhan_user786</h3>
+            <p>Invite Code: 559120</p>
+        </div>
+    </div>
+
+    <div class="balance-card">
+        <span>Total Assets (कुल संपत्ति)</span>
+        <h1 id="main-balance">₹1000.00</h1>
+        
+        <div class="card-actions" style="display: flex; justify-content: center; align-items: center; gap: 15px; width: 100%; margin-top: 20px;">
+            <a href="recharge.html" style="text-decoration: none; flex: 1;">
+                <button class="action-btn btn-recharge" style="width: 100%; margin: 0;">Recharge</button>
+            </a>
+            <a href="withdraw.html" style="text-decoration: none; flex: 1;">
+                <button class="action-btn btn-withdraw" style="background: #ef4444; border: none; color: white; margin: 0; width: 100%;">Withdraw</button>
+            </a>
+        </div>
+    </div>
+
+    <div class="quick-grid">
+        <div class="quick-item"><span class="icon">📲</span><p>App</p></div>
+        <div class="quick-item" onclick="window.location.href='invest.html'"><span class="icon">📊</span><p>Invest</p></div>
+        <div class="quick-item" onclick="window.location.href='withdraw.html'"><span class="icon">💲</span><p>Withdraw</p></div>
+        <div class="quick-item" onclick="window.open('https://telegram.dog', '_blank')"><span class="icon">🛠️</span><p>Online</p></div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <div class="bottom-nav">
+        <a href="dashboard.html" class="nav-item active">
+            <span class="nav-icon">🏠</span>
+            <span>Home</span>
+        </a>
+        <a href="invest.html" class="nav-item">
+            <span class="nav-icon">📊</span>
+            <span>Invest</span>
+        </a>
+        <a href="orders.html" class="nav-item">
+            <span class="nav-icon">🛍️</span>
+            <span>Orders</span>
+        </a>
+        <a href="withdraw.html" class="nav-item">
+            <span class="nav-icon">💲</span>
+            <span>Withdraw</span>
+        </a>
+        <a href="mine.html" class="nav-item">
+            <span class="nav-icon">👤</span>
+            <span>Mine</span>
+        </a>
+    </div>
+
+    <script>
+        window.onload = function() {
+            // Agar pehle se balance set nahi hai, toh ₹500 set kar dega
+            if (!localStorage.getItem("user_balance")) {
+                localStorage.setItem("user_balance", "200.00");
+            }
+            
+            // Balance screen par show karne ke liye
+            var currentBalance = localStorage.getItem("user_balance");
+            document.getElementById("main-balance").innerText = "₹" + currentBalance;
+
+            var savedPhone = localStorage.getItem("saved_phone");
+            if(savedPhone) {
+                document.getElementById("display-id").innerText = "Account:" + savedPhone;
+            }
+        };
+    </script>
+    <script>
+// Shuruat me user ko demo ke liye ₹200 balance dene ke liye
+if (!localStorage.getItem('wallet_balance')) {
+    localStorage.setItem('wallet_balance', '200'); 
+}
+
+// Screen par balance show karne ka function
+function updateBalanceUI() {
+    let currentBalance = localStorage.getItem('wallet_balance');
+    document.getElementById('user-balance').innerText = "₹" + currentBalance;
+}
+
+// Page load hote hi balance dikhayein
+updateBalanceUI();
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Agar pehle se koi balance store nahi hai toh 200 set karega
+        if (!localStorage.getItem('wallet_balance')) {
+            localStorage.setItem('wallet_balance', '200');
+        }
+
+        // Har baar sahi live balance screen par load karega
+        let currentWallet = parseFloat(localStorage.getItem('wallet_balance') || '200');
+        document.getElementById('dashboard-balance-num').innerText = "₹" + currentWallet.toFixed(2);
+    });
+</script>
+
+</body>
+</html>
